@@ -1,0 +1,61 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Student
+{
+public:
+    string studentID;
+    string name;
+    string course;
+};
+
+class Lecturer
+{
+public:
+    string lecturerID;
+    string name;
+    string department;
+};
+
+class CourseUnit
+{
+public:
+    string unitCode;
+    string unitName;
+};
+
+int main()
+{
+    Student student;
+    student.studentID = "DIT001";
+    student.name = "Stacy";
+    student.course = "Diploma in IT";
+
+    Lecturer lecturer;
+    lecturer.lecturerID = "LEC001";
+    lecturer.name = "Mr. Kamau";
+    lecturer.department = "Information Technology";
+
+    CourseUnit unit;
+    unit.unitCode = "DIT2101";
+    unit.unitName = "Object Oriented Analysis and Design";
+
+    cout << "===== OBJECT-ORIENTED ANALYSIS =====" << endl;
+
+    cout << "\nStudent:" << endl;
+    cout << "ID: " << student.studentID << endl;
+    cout << "Name: " << student.name << endl;
+    cout << "Course: " << student.course << endl;
+
+    cout << "\nLecturer:" << endl;
+    cout << "ID: " << lecturer.lecturerID << endl;
+    cout << "Name: " << lecturer.name << endl;
+    cout << "Department: " << lecturer.department << endl;
+
+    cout << "\nCourse Unit:" << endl;
+    cout << "Code: " << unit.unitCode << endl;
+    cout << "Name: " << unit.unitName << endl;
+
+    return 0;
+}
