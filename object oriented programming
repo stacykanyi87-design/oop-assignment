@@ -1,0 +1,249 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+// ==========================================
+// 1. COURSE UNIT CLASS
+// ==========================================
+class CourseUnit {
+private:
+    string unitCode;
+    string unitName;
+
+public:
+    CourseUnit(string code, string name) {
+        unitCode = code;
+        unitName = name;
+    }
+
+    string getUnitCode() const { return unitCode; }
+    string getUnitName() const { return unitName; }
+};
+
+// ==========================================
+// 2. GRADE RECORD CLASS
+// Handles CATs, Assignments, and Exam Marks
+// ==========================================
+class GradeRecord {
+private:
+    string unitCode;
+    double catScore;
+    double assignmentScore;
+    double examScore;
+
+public:
+    GradeRecord(string code) {
+        unitCode = code;
+        catScore = 0.0;
+        assignmentScore = 0.0;
+        examScore = 0.0;
+    }
+
+    string getUnitCode() const { return unitCode; }
+    
+    void setMarks(double cat, double assignment, double exam) {
+        catScore = cat;
+        assignmentScore = assignment;
+        examScore = exam;
+    }
+
+    double getTotalScore() const {
+        return catScore + assignmentScore + examScore;
+    }
+
+    void displayGrade() const {
+        cout << "Unit Code: " << unitCode 
+             << " | CAT: " << catScore 
+             << " | Assignment: " << assignmentScore 
+             << " | Exam: " << examScore 
+             << " | Total: " << getTotalScore() << endl;
+    }
+};
+
+// ==========================================
+// 3. BASE USER CLASS (Inheritance)
+// ==========================================
+class User {
+protected:
+    string userID;
+    string fullName;
+    string email;
+
+public:
+    User(string id, string name, string mail) {
+        userID = id;
+        fullName = name;
+        email = mail;
+    }
+
+    virtual void displayInfo() const {
+        cout << "ID: " << userID << " | Name: " << fullName << " | Email: " << email << endl;
+    }
+
+    string getName() const { return fullName; }
+    virtual ~User() {}
+};
+
+// ==========================================
+// 4. STUDENT CLASS (Derived from User)
+// ==========================================
+class Student : public User {
+private:
+    string regNumber;
+    vector<CourseUnit> registeredUnits; // Units registered in Portal
+    vector<GradeRecord> grades;          // Marks synced from LMS
+
+public:
+    Student(string id, string name, string mail, string regNum)
+        : User(id, name, mail) {
+        regNumber = regNum;
+    }
+
+    string getRegNumber() const { return regNumber; }
+
+    // Requirement: Student registers units from Official Student Portal
+    void registerUnitInPortal(const CourseUnit& unit) {
+        registeredUnits.push_back(unit);
+        grades.push_back(GradeRecord(unit.getUnitCode()));
+        cout << "[Student Portal] " << fullName << " registered for: " 
+             << unit.getUnitCode() << " (" << unit.getUnitName() << ")\n";
+    }
+
+    // Requirement: Registered units appear on LMS
+    void viewLMSUnits() const {
+        cout << "\n--- LMS View for Student: " << fullName << " (" << regNumber << ") ---\n";
+        if (registeredUnits.empty()) {
+            cout << "No registered units found.\n";
+            return;
+        }
+        for (size_t i = 0; i < registeredUnits.size(); i++) {
+            cout << "- " << registeredUnits[i].getUnitCode() << ": " 
+                 << registeredUnits[i].getUnitName() << "\n";
+        }
+    }
+
+    // Requirement: View grades on Student Portal
+    void viewPortalGrades() const {
+        cout << "\n--- Official Student Portal Grades: " << fullName << " ---\n";
+        if (grades.empty()) {
+            cout << "No marks recorded yet.\n";
+            return;
+        }
+        for (size_t i = 0; i < grades.size(); i++) {
+            grades[i].displayGrade();
+        }
+    }
+
+    // Internal helper for synchronizing marks with LMS
+    void updateLMSMarks(const string& unitCode, double cat, double assignment, double exam) {
+        for (size_t i = 0; i < grades.size(); i++) {
+            if (grades[i].getUnitCode() == unitCode) {
+                grades[i].setMarks(cat, assignment, exam);
+                cout << "[System Sync] Marks synchronized for " << unitCode << " in Student Portal.\n";
+                return;
+            }
+        }
+        cout << "[Error] Student is not registered for unit " << unitCode << "\n";
+    }
+};
+
+// ==========================================
+// 5. LECTURER CLASS (Derived from User)
+// ==========================================
+class Lecturer : public User {
+private:
+    string employeeID;
+
+public:
+    Lecturer(string id, string name, string mail, string empID)
+        : User(id, name, mail) {
+        employeeID = empID;
+    }
+
+    // Requirement: Lecturer posts notes on LMS
+    void postNotes(const string& unitCode, const string& noteTitle) {
+        cout << "\n[LMS Content] Lecturer " << fullName << " uploaded notes: '" 
+             << noteTitle << "' for unit " << unitCode << "\n";
+    }
+
+    // Requirement: Lecturer creates CATs, Assignments & Exams on LMS
+    void postAssessment(const string& unitCode, const string& assessmentType) {
+        cout << "[LMS Assessment] Lecturer " << fullName << " created a new " 
+             << assessmentType << " for unit " << unitCode << "\n";
+    }
+
+    // Requirement: Enters marks on LMS (Synced with Student Portal)
+    void enterMarks(Student& student, const string& unitCode, double cat, double assignment, double exam) {
+        cout << "\n[LMS Grading] Lecturer " << fullName << " submitting marks for " 
+             << student.getName() << " in " << unitCode << "...\n";
+        student.updateLMSMarks(unitCode, cat, assignment, exam);
+    }
+};
+
+// ==========================================
+// 6. NON-TEACHING STAFF CLASS (Derived from User)
+// ==========================================
+class NonTeachingStaff : public User {
+private:
+    string department;
+
+public:
+    NonTeachingStaff(string id, string name, string mail, string dept)
+        : User(id, name, mail) {
+        department = dept;
+    }
+
+    void systemMaintenance() {
+        cout << "\n[Staff Portal] " << fullName << " (" << department 
+             << ") performed system sync check.\n";
+    }
+};
+
+// ==========================================
+// MAIN FUNCTION
+// ==========================================
+int main() {
+    cout << "==================================================\n";
+    cout << "   UNIVERSITY INFORMATION SYSTEM (LMS & PORTAL)   \n";
+    cout << "==================================================\n\n";
+
+    // 1. Setup Academic Units
+    CourseUnit unit1("BIT 2104", "Object Oriented Programming");
+    CourseUnit unit2("BIT 2105", "Database Systems");
+
+    // 2. Instantiate Users
+    Student student1("S001", "Alex Smith", "alex@uni.ac.ke", "BIT/001/2026");
+    Lecturer lecturer1("L001", "Dr. Jane Doe", "jane.doe@uni.ac.ke", "EMP1024");
+    NonTeachingStaff staff1("NT001", "Mark Wilson", "mark@uni.ac.ke", "IT Support");
+
+    // 3. Student registers units via Student Portal
+    cout << "1. UNIT REGISTRATION (Student Portal)\n";
+    student1.registerUnitInPortal(unit1);
+    student1.registerUnitInPortal(unit2);
+
+    // 4. Verify units appear on LMS
+    cout << "\n2. LMS VISIBILITY CHECK";
+    student1.viewLMSUnits();
+
+    // 5. Lecturer posts notes and assessments on LMS
+    cout << "\n3. LECTURER ACTIVITIES ON LMS";
+    lecturer1.postNotes("BIT 2104", "Chapter 1: Inheritance & Polymorphism");
+    lecturer1.postAssessment("BIT 2104", "CAT 1");
+
+    // 6. Lecturer enters marks on LMS
+    cout << "\n4. GRADING & SYNCHRONIZATION";
+    lecturer1.enterMarks(student1, "BIT 2104", 25.0, 18.0, 48.0); // CAT, Assign, Exam
+    lecturer1.enterMarks(student1, "BIT 2105", 22.0, 15.0, 40.0);
+
+    // 7. Student checks marks on Student Portal
+    cout << "\n5. STUDENT CHECKS PORTAL GRADES";
+    student1.viewPortalGrades();
+
+    // 8. Staff activity
+    staff1.systemMaintenance();
+
+    cout << "\n==================================================\n";
+    return 0;
+}
