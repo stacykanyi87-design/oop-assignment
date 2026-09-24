@@ -1,0 +1,70 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Student
+{
+private:
+    string studentID;
+    string name;
+    string course;
+
+public:
+    Student(string id, string n, string c)
+    {
+        studentID = id;
+        name = n;
+        course = c;
+    }
+
+    void displayStudent()
+    {
+        cout << "Student ID: " << studentID << endl;
+        cout << "Name: " << name << endl;
+        cout << "Course: " << course << endl;
+    }
+};
+
+class CourseUnit
+{
+private:
+    string unitCode;
+    string unitName;
+
+public:
+    CourseUnit(string code, string name)
+    {
+        unitCode = code;
+        unitName = name;
+    }
+
+    void displayUnit()
+    {
+        cout << "Unit Code: " << unitCode << endl;
+        cout << "Unit Name: " << unitName << endl;
+    }
+};
+
+int main()
+{
+    cout << "===== OBJECT-ORIENTED DESIGN =====" << endl;
+
+    Student student(
+        "DIT001",
+        "Stacy",
+        "Diploma in IT"
+    );
+
+    CourseUnit unit(
+        "DIT2101",
+        "Object Oriented Analysis and Design"
+    );
+
+    cout << "\nStudent Details:" << endl;
+    student.displayStudent();
+
+    cout << "\nCourse Unit Details:" << endl;
+    unit.displayUnit();
+
+    return 0;
+}
